@@ -13,15 +13,29 @@ function randomTask() {
   return SAMPLE_TASKS[Math.floor(Math.random() * SAMPLE_TASKS.length)];
 }*/
 
-function TodoItem({ text }) {
-  return <li>{text}</li>;
+function TodoItem({ todo }) {
+  return (
+    <li>
+      <input type="checkbox" checked={todo.done} readOnly />
+      <span>{todo.text}</span>
+      <button> Delete </button>
+    </li>
+  );
 }
 
 export default function TodoList() {
-  const [todos, setTodos] = useState(["Buy milk"]); //initial state of the component
+  //const [todos, setTodos] = useState(["Buy milk"]); //initial state of the component to be modified in object
+  const [todos, setTodos] = useState([
+    { id: "1", text: "Buy milk", done: false }, //now every todos is an object with 3 properties
+  ]);
 
   function handleAdd(text) {
-    setTodos([...todos, text]); // Usi la funzione setter per aggiornare lo stato (creando un nuovo array, not a push)
+    const newTodo = {
+      id: crypto.randomUUID(), //genera un id univoco
+      text: text,
+      done: false,
+    };
+    setTodos([...todos, newTodo]); // Usi la funzione setter per aggiornare lo stato (creando un nuovo array, not a push)
   }
 
   return (
@@ -29,8 +43,8 @@ export default function TodoList() {
       <h1> My To Do List ({todos.length})</h1>
       <NewTodoForm onAdd={handleAdd} />
       <ul>
-        {todos.map((text, index) => (
-          <TodoItem key={index} text={text} />
+        {todos.map((todo) => (
+          <TodoItem key={todo.id} todo={todo} />
         ))}
       </ul>
     </>
