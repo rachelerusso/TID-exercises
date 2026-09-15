@@ -13,12 +13,16 @@ function randomTask() {
   return SAMPLE_TASKS[Math.floor(Math.random() * SAMPLE_TASKS.length)];
 }*/
 
-function TodoItem({ todo }) {
+function TodoItem({ todo, onToggle, onDelete }) {
   return (
     <li>
-      <input type="checkbox" checked={todo.done} readOnly />
+      <input
+        type="checkbox"
+        checked={todo.done}
+        onChange={() => onToggle(todo.id)}
+      />
       <span>{todo.text}</span>
-      <button> Delete </button>
+      <button onClick={() => onDelete(todo.id)}> Delete </button>
     </li>
   );
 }
@@ -38,15 +42,36 @@ export default function TodoList() {
     setTodos([...todos, newTodo]); // Usi la funzione setter per aggiornare lo stato (creando un nuovo array, not a push)
   }
 
+  function handleToggle(id) {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, done: !todo.done } : todo,
+      ),
+    );
+  }
+
+  function handleDelete(id) {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  }
+
   return (
     <>
       <h1> My To Do List ({todos.length})</h1>
       <NewTodoForm onAdd={handleAdd} />
-      <ul>
-        {todos.map((todo) => (
-          <TodoItem key={todo.id} todo={todo} />
-        ))}
-      </ul>
+      {todos.length === 0 ? (
+        <p>Nothing to do. Enjoy the afternoon.</p>
+      ) : (
+        <ul>
+          {todos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ul>
+      )}
     </>
   );
 }
