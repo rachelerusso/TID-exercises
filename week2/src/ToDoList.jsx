@@ -1,6 +1,7 @@
 //week2: Add useState for todos + form
 import { useState } from "react";
 import NewTodoForm from "./NewTodoForm.jsx";
+import { useEffect } from "react";
 
 /*const SAMPLE_TASKS = [
   "Buy milk",
@@ -27,11 +28,20 @@ function TodoItem({ todo, onToggle, onDelete }) {
   );
 }
 
+function loadTodos() {
+  const saved = localStorage.getItem("todos");
+  return saved
+    ? JSON.parse(saved)
+    : [{ id: "1", text: "Buy milk", done: false }];
+}
+
 export default function TodoList() {
   //const [todos, setTodos] = useState(["Buy milk"]); //initial state of the component to be modified in object
-  const [todos, setTodos] = useState([
-    { id: "1", text: "Buy milk", done: false }, //now every todos is an object with 3 properties
-  ]);
+  const [todos, setTodos] = useState(loadTodos);
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   function handleAdd(text) {
     const newTodo = {
