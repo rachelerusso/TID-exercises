@@ -1,29 +1,21 @@
-//week2: Add useState for todos + form
 import { useState } from "react";
 import NewTodoForm from "./NewTodoForm.jsx";
 import { useEffect } from "react";
-
-/*const SAMPLE_TASKS = [
-  "Buy milk",
-  "Call the landlord",
-  "Book the dentist",
-  "Water the plants",
-];
-
-function randomTask() {
-  return SAMPLE_TASKS[Math.floor(Math.random() * SAMPLE_TASKS.length)];
-}*/
+import "./ToDoList.css";
 
 function TodoItem({ todo, onToggle, onDelete }) {
   return (
-    <li>
+    <li className="todo-item">
       <input
         type="checkbox"
         checked={todo.done}
         onChange={() => onToggle(todo.id)}
       />
       <span>{todo.text}</span>
-      <button onClick={() => onDelete(todo.id)}> Delete </button>
+      <button className="todo-item button" onClick={() => onDelete(todo.id)}>
+        {" "}
+        Delete{" "}
+      </button>
     </li>
   );
 }
@@ -36,7 +28,6 @@ function loadTodos() {
 }
 
 export default function TodoList() {
-  //const [todos, setTodos] = useState(["Buy milk"]); //initial state of the component to be modified in object
   const [todos, setTodos] = useState(loadTodos);
 
   useEffect(() => {
@@ -45,11 +36,11 @@ export default function TodoList() {
 
   function handleAdd(text) {
     const newTodo = {
-      id: crypto.randomUUID(), //genera un id univoco
+      id: crypto.randomUUID(),
       text: text,
       done: false,
     };
-    setTodos([...todos, newTodo]); // Usi la funzione setter per aggiornare lo stato (creando un nuovo array, not a push)
+    setTodos([...todos, newTodo]);
   }
 
   function handleToggle(id) {
@@ -65,13 +56,13 @@ export default function TodoList() {
   }
 
   return (
-    <>
+    <div className="todo-container">
       <h1> My To Do List ({todos.length})</h1>
       <NewTodoForm onAdd={handleAdd} />
       {todos.length === 0 ? (
         <p>Nothing to do. Enjoy the afternoon.</p>
       ) : (
-        <ul>
+        <ul className="todo-list">
           {todos.map((todo) => (
             <TodoItem
               key={todo.id}
@@ -82,6 +73,6 @@ export default function TodoList() {
           ))}
         </ul>
       )}
-    </>
+    </div>
   );
 }
