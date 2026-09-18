@@ -1,58 +1,38 @@
 import { useState } from "react";
 import NewTodoForm from "./NewTodoForm.jsx";
+import TodoItem from "./TodoItem.jsx";
 import { useEffect } from "react";
-import "./ToDoList.css";
-
-function TodoItem({ todo, onToggle, onDelete }) {
-  return (
-    <li className="todo-item">
-      <input
-        type="checkbox"
-        checked={todo.done}
-        onChange={() => onToggle(todo.id)}
-      />
-      <span>{todo.text}</span>
-      <button className="todo-item button" onClick={() => onDelete(todo.id)}>
-        {" "}
-        Delete{" "}
-      </button>
-    </li>
-  );
-}
-
-function loadTodos() {
-  const saved = localStorage.getItem("todos");
-  return saved
-    ? JSON.parse(saved)
-    : [{ id: "1", text: "Buy milk", done: false }];
-}
+import {
+  fetchTodos,
+  createTodo,
+  setTodoDone,
+  deleteTodo,
+} from "../services/todoService.js";
 
 export default function TodoList() {
-  const [todos, setTodos] = useState(loadTodos);
+  const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    async function load() {
+      setTodos(await fetchTodos());
+    }
+    load();
+  }, []);
 
-  function handleAdd(text) {
-    const newTodo = {
-      id: crypto.randomUUID(),
-      text: text,
-      done: false,
-    };
-    setTodos([...todos, newTodo]);
+  async function handleAdd(newTask) {
+    const created = await createTodo(newTask);
+    setTodos([...todos, created]);
   }
 
-  function handleToggle(id) {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, done: !todo.done } : todo,
-      ),
-    );
+  async function handleToggle(id) {
+    const todo = todos.find((t) => t.id === id);
+    await setTodoDone(id, !todo.done);
+    setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
   }
 
-  function handleDelete(id) {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  async function handleDelete(idToDelete) {
+    await deleteTodo(idToDelete);
+    setTodos(todos.filter((each) => each.id !== idToDelete));
   }
 
   return (
