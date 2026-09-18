@@ -1,0 +1,57 @@
+/*week3: css */
+
+body {
+  background-color: lightblue;
+  font-family: "Roboto Condensed";
+}
+
+.main-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* grigio chiaro, fa da sfondo pagina */
+  min-height: 100vh;
+  padding: 1rem 0;
+}
+
+/* ToDoList */
+.todo-container {
+  background-color: whitesmoke;
+  width: calc(
+    100% - 2rem
+  ); /* 100% meno 1rem per lato = margine di 16px ovunque */
+  max-width: 600px; /* oltre i 600px, smette di crescere */
+  padding: 1.5rem;
+  margin: 1rem auto; /* "auto" sui lati orizzontali centra il blocco quando è più stretto del genitore */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* TodoItem */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.todo-item button {
+  margin-left: auto;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+
+.todo-item button:hover {
+  background-color: #e63946;
+}
