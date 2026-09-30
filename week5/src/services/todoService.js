@@ -3,10 +3,12 @@ import Parse from "parse";
 const TodoItem = Parse.Object.extend("TodoItem");
 
 function toPlainObject(parseObject) {
+  const user = parseObject.get("user");       //we get the user from the user column in the app
   return {
     id: parseObject.id,
     text: parseObject.get("text"),
     done: parseObject.get("done"),
+    user: user ? user.id : null, 
   };
 }
 
@@ -17,10 +19,13 @@ export async function fetchTodos() {
   return results.map(toPlainObject);
 }
 
-export async function createTodo(text) {
+export async function createTodo(text, userId) {
   const item = new TodoItem();
+  const user = Parse.User.createWithoutData(userId);  //create the user in the back4app 
   item.set("text", text);
   item.set("done", false);
+  item.set("user", user);               //set the user in the db
+  item.setACL(new Parse.ACL(user));   //only the owner can read/write this todo
   return toPlainObject(await item.save());
 }
 

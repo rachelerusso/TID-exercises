@@ -9,18 +9,23 @@ import {
   deleteTodo,
 } from "../services/todoService.js";
 
-export default function TodoList() {
+export default function TodoList({username, userId}) {
   const [todos, setTodos] = useState([]);
+
 
   useEffect(() => {
     async function load() {
-      setTodos(await fetchTodos());
+      const todos = await fetchTodos();
+      const userTodos = todos.filter((todo) => todo.user === userId);  //Refactor the useEffect to filter the items after they are fetched
+      setTodos(userTodos);
     }
     load();
-  }, []);
+  }, [userId]);
 
+
+  //Refactor your handleAdd to include the userId + vedi userId={user.id} in app.jsx
   async function handleAdd(newTask) {
-    const created = await createTodo(newTask);
+    const created = await createTodo(newTask,userId);
     setTodos([...todos, created]);
   }
 
@@ -37,7 +42,7 @@ export default function TodoList() {
 
   return (
     <div className="todo-container">
-      <h1> My To Do List ({todos.length})</h1>
+      <h1> To Do List for {username} </h1>
       <NewTodoForm onAdd={handleAdd} />
       {todos.length === 0 ? (
         <p>Nothing to do. Enjoy the afternoon.</p>
