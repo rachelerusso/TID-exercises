@@ -1,0 +1,42 @@
+import Parse from "parse";
+
+const TodoItem = Parse.Object.extend("TodoItem");
+
+function toPlainObject(parseObject) {
+  const user = parseObject.get("user");       //we get the user from the user column in the app
+  return {
+    id: parseObject.id,
+    text: parseObject.get("text"),
+    done: parseObject.get("done"),
+    user: user ? user.id : null, 
+  };
+}
+
+export async function fetchTodos() {
+  const query = new Parse.Query(TodoItem);
+  query.ascending("createdAt");
+  const results = await query.find();
+  return results.map(toPlainObject);
+}
+
+export async function createTodo(text, userId) {
+  const item = new TodoItem();
+  const user = Parse.User.createWithoutData(userId);  //create the user in the back4app 
+  item.set("text", text);
+  item.set("done", false);
+  item.set("user", user);               //set the user in the db
+  item.setACL(new Parse.ACL(user));   //only the owner can read/write this todo
+  return toPlainObject(await item.save());
+}
+
+export async function setTodoDone(id, done) {
+  //we have the id, so we don't need to fetch the object before changing it
+  const item = TodoItem.createWithoutData(id);
+  item.set("done", done);
+  return toPlainObject(await item.save());
+}
+
+export async function deleteTodo(id) {
+  const item = TodoItem.createWithoutData(id);
+  await item.destroy();
+}
