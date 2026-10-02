@@ -2,6 +2,7 @@ import { useState } from "react";
 import NewTodoForm from "./NewTodoForm.jsx";
 import TodoItem from "./TodoItem.jsx";
 import { useEffect } from "react";
+import NewListForm from "./NewListForm.jsx";
 import {
   fetchTodos,
   createTodo,
@@ -9,24 +10,31 @@ import {
   deleteTodo,
 } from "../services/todoService.js";
 
-export default function TodoList({username, userId}) {
-  const [todos, setTodos] = useState([]);
+import { createList, fetchLists } from "../services/listService.js";
 
+export default function TodoList({ username, userId }) {
+  const [todos, setTodos] = useState([]);
+  const [lists, setLists] = useState([]);
 
   useEffect(() => {
     async function load() {
-      const todos = await fetchTodos();
-      const userTodos = todos.filter((todo) => todo.user === userId);  //Refactor the useEffect to filter the items after they are fetched
-      setTodos(userTodos);
+      const allTodos = await fetchTodos();
+      setTodos(allTodos.filter((todo) => todo.user === userId)); //Refactor the useEffect to filter the items after they are fetched (fetch takes all the elements from the db )
+      const allLists = await fetchLists();
+      setLists(allLists);
     }
     load();
   }, [userId]);
 
-
   //Refactor your handleAdd to include the userId + vedi userId={user.id} in app.jsx
-  async function handleAdd(newTask) {
-    const created = await createTodo(newTask,userId);
+  async function handleAdd(newTask, list) {
+    const created = await createTodo(newTask, list);
     setTodos([...todos, created]);
+  }
+
+  async function handleAddList(name) {
+    const created = await createList(name);
+    setLists([...lists, created]); //set the lists to include the item we created
   }
 
   async function handleToggle(id) {
@@ -43,18 +51,27 @@ export default function TodoList({username, userId}) {
   return (
     <div className="todo-container">
       <h1> To Do List for {username} </h1>
-      <NewTodoForm onAdd={handleAdd} />
-      {todos.length === 0 ? (
-        <p>Nothing to do. Enjoy the afternoon.</p>
+
+      <NewListForm onAdd={handleAddList} />
+      {lists.length === 0 ? (
+        <p>No lists yet.</p>
       ) : (
-        <ul className="todo-list">
-          {todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-            />
+        <ul>
+          {lists.map((list) => (
+            <li key={list.id}>
+              {list.get("name")}
+              <NewTodoForm list={list} onAdd={handleAdd} />
+              <ul className="todo-list">
+                {todos.map((todo) => (
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </ul>
+            </li>
           ))}
         </ul>
       )}

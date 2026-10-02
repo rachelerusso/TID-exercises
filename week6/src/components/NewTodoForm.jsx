@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-export default function NewTodoForm({ onAdd }) {
+export default function NewTodoForm({ onAdd, list }) {
   // ricevo onAdd come PROP (viene da TodoList) è (sotto altro nome) handleAdd
   const [text, setText] = useState(""); //creo text come STATE LOCALE
 
   function handleSubmit(e) {
     e.preventDefault();
-    onAdd(text); // chiama handleAdd(text) di TodoList — qui avviene il "collegamento"
+    onAdd(text, list); // chiama handleAdd(text) di TodoList — qui avviene il "collegamento"
     setText(""); //resetta lo state locale text
   }
 

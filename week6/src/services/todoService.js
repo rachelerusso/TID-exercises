@@ -1,31 +1,37 @@
 import Parse from "parse";
 
 const TodoItem = Parse.Object.extend("TodoItem");
+// React is happier with plain JS objects than with Parse objects,
+// and this is also where we unify the treatment of `id` with the other fields
 
 function toPlainObject(parseObject) {
-  const user = parseObject.get("user");       //we get the user from the user column in the app
+  const user = parseObject.get("user"); //we get the user from the user column in the app
+  const list = parseObject.get("list");
   return {
     id: parseObject.id,
     text: parseObject.get("text"),
     done: parseObject.get("done"),
-    user: user ? user.id : null, 
+    user: user ? user.id : null,
+    list: list ? list.id : null,
   };
 }
 
 export async function fetchTodos() {
   const query = new Parse.Query(TodoItem);
-  query.ascending("createdAt");
+  query.ascending("createdAt"); //oldest first
   const results = await query.find();
   return results.map(toPlainObject);
 }
 
-export async function createTodo(text, userId) {
+export async function createTodo(text, list) {
   const item = new TodoItem();
-  const user = Parse.User.createWithoutData(userId);  //create the user in the back4app 
+  const user = Parse.User.current();
+  //const user = Parse.User.createWithoutData(userId); //create the user in the back4app
   item.set("text", text);
   item.set("done", false);
-  item.set("user", user);               //set the user in the db
-  item.setACL(new Parse.ACL(user));   //only the owner can read/write this todo
+  item.set("user", user); //set the user in the db
+  item.set("list", list);
+  item.setACL(new Parse.ACL(user)); //only the owner can read/write this todo
   return toPlainObject(await item.save());
 }
 
