@@ -46,3 +46,11 @@ export async function deleteTodo(id) {
   const item = TodoItem.createWithoutData(id);
   await item.destroy();
 }
+
+export async function fetchTodosForList(list) {
+  const query = new Parse.Query(TodoItem);
+  query.equalTo("list", list);
+
+  const todos = await query.find();
+  return todos.map(toPlainObject);
+}
